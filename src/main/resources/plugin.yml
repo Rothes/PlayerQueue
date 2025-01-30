@@ -1,0 +1,8 @@
+name: PlayerQueue
+main: io.github.rothes.playerqueue.PlayerQueuePlugin
+version: 2.0.0
+api-version: 1.13
+author: Rothes
+folia-supported: true
+depend:
+  - ESU
