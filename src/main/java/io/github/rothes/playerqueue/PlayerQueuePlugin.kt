@@ -101,7 +101,8 @@ class PlayerQueuePlugin: JavaPlugin(), PluginMessageListener {
         }
     }
     fun trySendPlayer(player: Player) {
-        val joinOn: Long = QueueManager.joinTime(player)
+        val queueInfo = QueueManager.pending[player]!!
+        val joinOn = queueInfo.joinTime
         val user = player.user
         val lastSent = QueueManager.sentInfo.getIfPresent(user)
         val joinInterval = PlayerQueueModule.config.playerJoinInterval.toKotlinDuration()
@@ -117,7 +118,7 @@ class PlayerQueuePlugin: JavaPlugin(), PluginMessageListener {
             user.message(PlayerQueueModule.locale, { joinTimeLimiting },
                 duration(minQueueTime - (System.currentTimeMillis() - joinOn - 1000).milliseconds, user) // Adds extra 1s to avoid ms unit being displayed
             )
-        } else {
+        } else if (System.currentTimeMillis() - queueInfo.lastSendAttempt >= PlayerQueueModule.config.connectAttemptInterval.toMillis()) {
             user.message(PlayerQueueModule.locale, { connecting })
 
             with(ByteStreams.newDataOutput()) {
@@ -127,6 +128,7 @@ class PlayerQueuePlugin: JavaPlugin(), PluginMessageListener {
                 player.sendPluginMessage(plugin, "BungeeCord", toByteArray())
             }
             QueueManager.sentInfo.put(user, QueueManager.SentInfo())
+            queueInfo.lastSendAttempt = System.currentTimeMillis()
         }
     }
 

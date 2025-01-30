@@ -68,7 +68,7 @@ object QueueManager {
         val joinTime: Long = System.currentTimeMillis(),
         val lastMessage: MutableMap<String, ParsedMessageData> = hashMapOf(),
         val lastMessageTime: MutableMap<String, Long> = hashMapOf(),
-        var lastSend: Long = 0
+        var lastSendAttempt: Long = 0
     )
 
     data class SentInfo(
