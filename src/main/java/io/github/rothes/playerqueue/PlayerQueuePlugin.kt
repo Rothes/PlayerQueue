@@ -103,11 +103,11 @@ class PlayerQueuePlugin: JavaPlugin(), PluginMessageListener {
     fun trySendPlayer(player: Player) {
         val joinOn: Long = QueueManager.joinTime(player)
         val user = player.user
-        val lastJoin = QueueManager.joined.getIfPresent(user)?.joinTime ?: 0
+        val lastSent = QueueManager.sentInfo.getIfPresent(user)
         val joinInterval = PlayerQueueModule.config.playerJoinInterval.toKotlinDuration()
-        if (System.currentTimeMillis() - lastJoin < joinInterval.inWholeMilliseconds) {
+        if (lastSent != null && lastSent.left && System.currentTimeMillis() - lastSent.joinTime < joinInterval.inWholeMilliseconds) {
             user.message(PlayerQueueModule.locale, { frequentWarning },
-                duration(joinInterval - (System.currentTimeMillis() - lastJoin - 1000).milliseconds, user) // Adds extra 1s to avoid ms unit being displayed
+                duration(joinInterval - (System.currentTimeMillis() - lastSent.joinTime - 1000).milliseconds, user) // Adds extra 1s to avoid ms unit being displayed
             )
             return
         }
@@ -126,7 +126,7 @@ class PlayerQueuePlugin: JavaPlugin(), PluginMessageListener {
 
                 player.sendPluginMessage(plugin, "BungeeCord", toByteArray())
             }
-            QueueManager.joined.put(user, QueueManager.JoinInfo())
+            QueueManager.sentInfo.put(user, QueueManager.SentInfo())
         }
     }
 

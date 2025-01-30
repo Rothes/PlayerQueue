@@ -13,7 +13,7 @@ object QueueManager {
 
     val queue = linkedMapOf<Player, QueueInfo>()
     val pending = linkedMapOf<Player, QueueInfo>()
-    val joined = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build<PlayerUser, JoinInfo>()
+    val sentInfo = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build<PlayerUser, SentInfo>()
 
     val inQueueSize
         get() = queue.size + pending.size
@@ -71,8 +71,9 @@ object QueueManager {
         var lastSend: Long = 0
     )
 
-    data class JoinInfo(
+    data class SentInfo(
         val joinTime: Long = System.currentTimeMillis(),
+        var left: Boolean = false,
     )
 
 }
