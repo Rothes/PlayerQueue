@@ -35,13 +35,13 @@ object Listeners: Listener {
     @EventHandler
     fun onPlayerQuit(e: PlayerQuitEvent) {
         QueueManager.removePlayerFromQueue(e.player)
-        QueueManager.sentInfo.getIfPresent(e.player)?.left = true
+        QueueManager.sentInfo.getIfPresent(e.player.user)?.left = true
     }
 
     @EventHandler
     fun onPlayerQuit(e: PlayerKickEvent) {
         QueueManager.removePlayerFromQueue(e.player)
-        QueueManager.sentInfo.getIfPresent(e.player)?.left = true
+        QueueManager.sentInfo.getIfPresent(e.player.user)?.left = true
     }
 
     private val lastSneak = CacheBuilder.newBuilder().expireAfterWrite(400.milliseconds.toJavaDuration()).build<Player, Long>()
