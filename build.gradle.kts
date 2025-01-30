@@ -4,6 +4,7 @@ plugins {
     id("io.github.goooler.shadow") version "8.1.8"
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.11"
     `java-library`
+    `maven-publish`
 }
 
 group = "io.github.rothes"
@@ -39,5 +40,20 @@ tasks.shadowJar {
 kotlin {
     compilerOptions {
         freeCompilerArgs.add("-java-parameters") // Fix cloud-annotations
+    }
+}
+
+publishing {
+    repositories {
+        mavenLocal()
+    }
+    publications {
+        create<MavenPublication>("mavenJar") {
+            from(components["java"])
+
+            artifactId = project.name
+            groupId = project.group as String?
+            version = project.version as String?
+        }
     }
 }
