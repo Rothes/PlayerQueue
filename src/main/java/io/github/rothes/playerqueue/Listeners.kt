@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -43,7 +44,7 @@ object Listeners: Listener {
         QueueManager.sentInfo.getIfPresent(e.player)?.left = true
     }
 
-    private val lastSneak = CacheBuilder.newBuilder().expireAfterWrite(1.seconds.toJavaDuration()).build<Player, Long>()
+    private val lastSneak = CacheBuilder.newBuilder().expireAfterWrite(400.milliseconds.toJavaDuration()).build<Player, Long>()
 
     @EventHandler
     fun onSneak(e: PlayerToggleSneakEvent) {
