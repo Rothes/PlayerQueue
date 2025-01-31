@@ -3,6 +3,7 @@ package io.github.rothes.playerqueue.module
 import com.google.common.io.ByteStreams
 import io.github.rothes.esu.bukkit.module.BukkitModule
 import io.github.rothes.esu.bukkit.util.scheduler.Scheduler
+import io.github.rothes.esu.core.configuration.ConfigLoader
 import io.github.rothes.esu.core.configuration.ConfigurationPart
 import io.github.rothes.esu.core.configuration.data.MessageData
 import io.github.rothes.esu.core.configuration.data.MessageData.Companion.message
@@ -16,7 +17,7 @@ import org.bukkit.Sound
 import org.bukkit.event.HandlerList
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import java.nio.file.Path
-import kotlin.jvm.java
+import java.util.UUID
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
@@ -31,7 +32,17 @@ object PlayerQueueModule: BukkitModule<PlayerQueueModule.ModuleConfig, PlayerQue
     override val moduleFolder: Path
         get() = plugin.dataPath
 
+    private lateinit var data: ModuleData
+    private val dataPath = moduleFolder.resolve("data.yml")
+
     override fun enable() {
+        data = ConfigLoader.load(dataPath)
+        for (uuid in data.queue) {
+            Bukkit.getPlayer(uuid)?.let {
+                QueueManager.addPlayerToQueue(it)
+            }
+        }
+
         Bukkit.getPluginManager().registerEvents(Listeners, plugin)
         Scheduler.global(5, 20, plugin) {
             val player = Bukkit.getOnlinePlayers().firstOrNull() ?: return@global
@@ -53,6 +64,11 @@ object PlayerQueueModule: BukkitModule<PlayerQueueModule.ModuleConfig, PlayerQue
         super.disable()
         HandlerList.unregisterAll(Listeners)
         Scheduler.cancelTasks(plugin)
+
+        data.queue.clear()
+        data.queue.addAll(QueueManager.pending.map { it.key.uniqueId })
+        data.queue.addAll(QueueManager.queue.map { it.key.uniqueId })
+        ConfigLoader.save(dataPath, data)
     }
 
     override fun reloadConfig() {
@@ -62,6 +78,10 @@ object PlayerQueueModule: BukkitModule<PlayerQueueModule.ModuleConfig, PlayerQue
     override fun perm(shortPerm: String): String {
         return "playerqueue.$shortPerm"
     }
+
+    data class ModuleData(
+        val queue: MutableList<UUID>,
+    ): ConfigurationPart
 
     data class ModuleConfig(
         @field:Comment("The proxy server targets to.")
