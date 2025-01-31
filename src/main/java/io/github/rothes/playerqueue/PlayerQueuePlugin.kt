@@ -94,10 +94,10 @@ class PlayerQueuePlugin: JavaPlugin(), PluginMessageListener {
             if (!QueueManager.hasNext()) return
 
             val player = QueueManager.nextAndPend()
-            trySendPlayer(player)
             val user = player.user
             user.clearTitle()
             user.clearActionBar()
+            trySendPlayer(player)
         }
     }
     fun trySendPlayer(player: Player) {
