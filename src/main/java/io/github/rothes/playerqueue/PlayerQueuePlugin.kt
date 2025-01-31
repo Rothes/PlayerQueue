@@ -24,28 +24,12 @@ class PlayerQueuePlugin: JavaPlugin(), PluginMessageListener {
         instance = this
         ModuleManager.addModule(PlayerQueueModule)
 
-        Bukkit.getPluginManager().registerEvents(Listeners, this)
         this.server.messenger.registerOutgoingPluginChannel(this, "BungeeCord")
         this.server.messenger.registerIncomingPluginChannel(this, "BungeeCord", this)
 
         for (player in Bukkit.getOnlinePlayers()) {
             if (AuthMeApi.getInstance().isAuthenticated(player)) {
                 QueueManager.addPlayerToQueue(player)
-            }
-        }
-
-        Scheduler.global(5, 20, plugin) {
-            val player = Bukkit.getOnlinePlayers().firstOrNull() ?: return@global
-
-            with(ByteStreams.newDataOutput()) {
-                writeUTF("PlayerCount")
-                writeUTF(PlayerQueueModule.config.targetServer)
-                player.sendPluginMessage(plugin, "BungeeCord", toByteArray())
-            }
-        }
-        Scheduler.global(5, 10, plugin) {
-            for (player in QueueManager.pending.keys) {
-                plugin.trySendPlayer(player)
             }
         }
     }

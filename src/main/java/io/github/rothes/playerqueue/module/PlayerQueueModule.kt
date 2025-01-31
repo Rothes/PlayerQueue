@@ -1,13 +1,19 @@
 package io.github.rothes.playerqueue.module
 
+import com.google.common.io.ByteStreams
 import io.github.rothes.esu.bukkit.module.BukkitModule
+import io.github.rothes.esu.bukkit.util.scheduler.Scheduler
 import io.github.rothes.esu.core.configuration.ConfigurationPart
 import io.github.rothes.esu.core.configuration.data.MessageData
 import io.github.rothes.esu.core.configuration.data.MessageData.Companion.message
 import io.github.rothes.esu.core.configuration.data.SoundData
 import io.github.rothes.esu.core.configuration.data.TitleData
+import io.github.rothes.playerqueue.Listeners
+import io.github.rothes.playerqueue.QueueManager
 import io.github.rothes.playerqueue.plugin
+import org.bukkit.Bukkit
 import org.bukkit.Sound
+import org.bukkit.event.HandlerList
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import java.nio.file.Path
 import kotlin.jvm.java
@@ -26,11 +32,27 @@ object PlayerQueueModule: BukkitModule<PlayerQueueModule.ModuleConfig, PlayerQue
         get() = plugin.dataPath
 
     override fun enable() {
+        Bukkit.getPluginManager().registerEvents(Listeners, plugin)
+        Scheduler.global(5, 20, plugin) {
+            val player = Bukkit.getOnlinePlayers().firstOrNull() ?: return@global
 
+            with(ByteStreams.newDataOutput()) {
+                writeUTF("PlayerCount")
+                writeUTF(config.targetServer)
+                player.sendPluginMessage(plugin, "BungeeCord", toByteArray())
+            }
+        }
+        Scheduler.global(5, 10, plugin) {
+            for (player in QueueManager.pending.keys) {
+                plugin.trySendPlayer(player)
+            }
+        }
     }
 
     override fun disable() {
         super.disable()
+        HandlerList.unregisterAll(Listeners)
+        Scheduler.cancelTasks(plugin)
     }
 
     override fun reloadConfig() {
