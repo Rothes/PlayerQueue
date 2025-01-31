@@ -80,7 +80,7 @@ object PlayerQueueModule: BukkitModule<PlayerQueueModule.ModuleConfig, PlayerQue
     }
 
     data class ModuleData(
-        val queue: MutableList<UUID>,
+        val queue: MutableList<UUID> = arrayListOf(),
     ): ConfigurationPart
 
     data class ModuleConfig(
