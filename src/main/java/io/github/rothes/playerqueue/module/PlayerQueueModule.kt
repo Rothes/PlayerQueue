@@ -10,6 +10,7 @@ import io.github.rothes.playerqueue.plugin
 import org.bukkit.Sound
 import org.spongepowered.configurate.objectmapping.meta.Comment
 import java.nio.file.Path
+import kotlin.jvm.java
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
@@ -41,20 +42,25 @@ object PlayerQueueModule: BukkitModule<PlayerQueueModule.ModuleConfig, PlayerQue
     }
 
     data class ModuleConfig(
+        @field:Comment("The proxy server targets to.")
         val targetServer: String = "proxy_server_name",
         val limitPlayers: Int = 40,
+        @field:Comment("Player must wait at least this duration to be sent. This is to avoid player has no time to interact with other things.")
         val minQueueTime: JDuration = Duration.parse("5s").toJavaDuration(),
+        @field:Comment("The interval between each sent attempt.")
         val connectAttemptInterval: JDuration = Duration.parse("5s").toJavaDuration(),
+        @field:Comment("Player must wait at least this duration to join the target server again after a sent.")
         val playerJoinInterval: JDuration = Duration.parse("2m").toJavaDuration(),
+        @field:Comment("Configures in-queue messages.\n" +
+                "'key' is also the `key` of in-queue-message in lang.\n" +
+                "'interval' determines the interval between each message.\n" +
+                "'cache' tells plugin to cache last message, and skip current message if their contents are same.")
         val queueMessages: List<QueueMessage> = listOf(QueueMessage()),
     ): ConfigurationPart {
 
         data class QueueMessage(
-            @field:Comment("The key of in-queue-message in lang")
             val key: String = "queueing",
-            @field:Comment("Interval between each message")
             val interval: JDuration = Duration.parse("1s").toJavaDuration(),
-            @field:Comment("Cache last message, and skip sending if their contents are same")
             val cache: Boolean = true,
         ): ConfigurationPart
     }
@@ -76,7 +82,7 @@ object PlayerQueueModule: BukkitModule<PlayerQueueModule.ModuleConfig, PlayerQue
         val frequentWarning: MessageData = MessageData(
             title = TitleData(
                 "<ec>Please do not access the server frequently",
-                "<ec>You will back to the queue in <edc><duration><ec>.",
+                "<ec>You will back to the queue in <edc><duration><ec>",
                 TitleData.Times(0.milliseconds, 1.minutes, 0.milliseconds))
         ),
         val connecting: MessageData = "<dark_green>Connecting to the server...".message,
