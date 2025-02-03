@@ -27,7 +27,6 @@ val fileName = rootProject.name
 tasks.shadowJar {
     archiveFileName = "${fileName}-${project.version}-mojmap.jar"
 
-    relocate("kotlin", "io.github.rothes.esu.lib.kotlin")
     relocate("org.incendo", "io.github.rothes.esu.lib.org.incendo")
     relocate("cc.carm.lib", "io.github.rothes.esu.lib.cc.carm.lib")
     relocate("org.spongepowered", "io.github.rothes.esu.lib.org.spongepowered")
