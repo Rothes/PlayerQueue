@@ -50,7 +50,7 @@ class PlayerQueuePlugin: JavaPlugin(), PluginMessageListener {
             val server = input.readUTF()
             onlineCount = input.readInt()
 
-            sendNextPlayers(PlayerQueueModule.config.limitPlayers - (onlineCount + QueueManager.inQueueSize))
+            sendNextPlayers(PlayerQueueModule.config.limitPlayers - (onlineCount + QueueManager.pending.size))
 
             for ((index, entry) in QueueManager.queue.entries.withIndex()) {
                 val (player, info) = entry
