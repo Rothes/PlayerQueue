@@ -18,7 +18,7 @@ import kotlin.time.toKotlinDuration
 
 class PlayerQueuePlugin: JavaPlugin(), PluginMessageListener {
 
-    var onlineCount = Int.MAX_VALUE
+    var onlineCount = Int.MAX_VALUE shr 2
 
     override fun onEnable() {
         instance = this

@@ -54,8 +54,17 @@ object PlayerQueueModule: BukkitModule<PlayerQueueModule.ModuleConfig, PlayerQue
             }
         }
         Scheduler.global(5, 10, plugin) {
-            for (player in QueueManager.pending.keys) {
-                plugin.trySendPlayer(player)
+            buildList {
+                for (player in QueueManager.pending.keys) {
+                    if (!player.isConnected) {
+                        add(player)
+                        continue
+                    }
+                    plugin.trySendPlayer(player)
+                }
+                forEach { offline ->
+                    QueueManager.pending.remove(offline)
+                }
             }
         }
     }
