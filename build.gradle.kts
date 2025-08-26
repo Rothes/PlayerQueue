@@ -1,8 +1,6 @@
-import com.xpdustry.ksr.kotlinRelocate
-
 plugins {
     id("java")
-    kotlin("jvm") version "2.0.20"
+    kotlin("jvm") version "2.1.21"
     id("io.github.goooler.shadow") version "8.1.8"
     id("com.xpdustry.kotlin-shadow-relocator") version "2.0.0"
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.11"
@@ -11,32 +9,24 @@ plugins {
 }
 
 group = "io.github.rothes"
-version = "2.0.0"
+version = "2.1.0"
 
 repositories {
     mavenLocal()
     mavenCentral()
     maven("https://repo.codemc.org/repository/maven-public/")
+    maven("https://jitpack.io")
 }
 
 dependencies {
     paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
-    compileOnlyApi("io.github.rothes.esu:bukkit:1.0.0")
-    compileOnlyApi("io.github.rothes.esu:core:1.0.0")
+    compileOnlyApi("io.github.rothes.esu:bukkit:0.9.0")
     compileOnly("fr.xephi:authme:5.6.0-SNAPSHOT")
 }
 
 val fileName = rootProject.name
 tasks.shadowJar {
-    archiveFileName = "${fileName}-${project.version}-mojmap.jar"
-
-    kotlinRelocate("kotlin.", "io.github.rothes.esu.lib.kotlin.") {
-        exclude("%regex[.+\\.kotlin_builtins]") // Fix issues with kotlin-reflect
-    }
-    relocate("org.incendo", "io.github.rothes.esu.lib.org.incendo")
-    relocate("cc.carm.lib", "io.github.rothes.esu.lib.cc.carm.lib")
-    relocate("org.spongepowered", "io.github.rothes.esu.lib.org.spongepowered")
-    relocate("info.debatty", "io.github.rothes.esu.lib.info.debatty")
+    archiveFileName = "${fileName}-${project.version}.jar"
 
     dependencies {
         exclude(dependency("org.jetbrains.kotlin:kotlin-stdlib"))

@@ -6,6 +6,7 @@ import fr.xephi.authme.events.LoginEvent
 import fr.xephi.authme.events.LogoutEvent
 import io.github.rothes.esu.bukkit.user
 import io.github.rothes.playerqueue.module.PlayerQueueModule
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -13,6 +14,7 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
@@ -21,6 +23,15 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 object Listeners: Listener {
+
+    @EventHandler
+    fun onJoin(e: PlayerJoinEvent) {
+        val player = e.player
+        for (p in Bukkit.getOnlinePlayers()) {
+            p.hidePlayer(plugin, player)
+            player.hidePlayer(plugin, p)
+        }
+    }
 
     @EventHandler
     fun onLogin(e: LoginEvent) {
@@ -35,13 +46,13 @@ object Listeners: Listener {
     @EventHandler
     fun onPlayerQuit(e: PlayerQuitEvent) {
         QueueManager.removePlayerFromQueue(e.player)
-        QueueManager.sentInfo.getIfPresent(e.player.user)?.left = true
+        QueueManager.sentInfo.getIfPresent(e.player.address!!.hostString)?.left = true
     }
 
     @EventHandler
     fun onPlayerQuit(e: PlayerKickEvent) {
         QueueManager.removePlayerFromQueue(e.player)
-        QueueManager.sentInfo.getIfPresent(e.player.user)?.left = true
+        QueueManager.sentInfo.getIfPresent(e.player.address!!.hostString)?.left = true
     }
 
     private val lastSneak = CacheBuilder.newBuilder().expireAfterWrite(400.milliseconds.toJavaDuration()).build<Player, Long>()

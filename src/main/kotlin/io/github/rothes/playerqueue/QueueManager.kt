@@ -13,7 +13,7 @@ object QueueManager {
 
     val queue = linkedMapOf<Player, QueueInfo>()
     val pending = linkedMapOf<Player, QueueInfo>()
-    val sentInfo = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build<PlayerUser, SentInfo>()
+    val sentInfo = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build<String, SentInfo>()
 
     val inQueueSize
         get() = queue.size + pending.size

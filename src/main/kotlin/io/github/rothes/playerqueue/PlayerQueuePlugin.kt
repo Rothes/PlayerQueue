@@ -31,6 +31,10 @@ class PlayerQueuePlugin: JavaPlugin(), PluginMessageListener {
             if (AuthMeApi.getInstance().isAuthenticated(player)) {
                 QueueManager.addPlayerToQueue(player)
             }
+            for (p in Bukkit.getOnlinePlayers()) {
+                if (player !== p)
+                    player.hidePlayer(plugin, p)
+            }
         }
     }
 
@@ -88,7 +92,7 @@ class PlayerQueuePlugin: JavaPlugin(), PluginMessageListener {
         val queueInfo = QueueManager.pending[player]!!
         val joinOn = queueInfo.joinTime
         val user = player.user
-        val lastSent = QueueManager.sentInfo.getIfPresent(user)
+        val lastSent = QueueManager.sentInfo.getIfPresent(player.address!!.hostString)
         val joinInterval = PlayerQueueModule.config.playerJoinInterval.toKotlinDuration()
         if (lastSent != null && lastSent.left && System.currentTimeMillis() - lastSent.joinTime < joinInterval.inWholeMilliseconds) {
             user.message(PlayerQueueModule.locale, { frequentWarning },
@@ -111,7 +115,7 @@ class PlayerQueuePlugin: JavaPlugin(), PluginMessageListener {
 
                 player.sendPluginMessage(plugin, "BungeeCord", toByteArray())
             }
-            QueueManager.sentInfo.put(user, QueueManager.SentInfo())
+            QueueManager.sentInfo.put(player.address!!.hostString, QueueManager.SentInfo())
             queueInfo.lastSendAttempt = System.currentTimeMillis()
         }
     }
